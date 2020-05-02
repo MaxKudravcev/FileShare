@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Grid xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:iconize="clr-namespace:Plugin.Iconize;assembly=Plugin.Iconize"
+             x:Class="FileShare1.MenuItem"
+             x:Name="this">
+
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="50"/>
+        <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <iconize:IconImage Grid.Column="0" Icon="{Binding Icon, Source={x:Reference this}}" IconColor="{StaticResource VeryDarkGreen}" IconSize="22" />
+    <Label Style="{StaticResource MenuLabelStyle}" Text="{Binding Text, Source={x:Reference this}}" Grid.Column="1" />
+    <Grid.GestureRecognizers>
+        <TapGestureRecognizer Command="{Binding Command, Source={x:Reference this}}" CommandParameter="{Binding CommandParameter, Source={x:Reference this}}"/>
+    </Grid.GestureRecognizers>
+
+</Grid>

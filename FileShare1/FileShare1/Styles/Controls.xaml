@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Style TargetType="{x:Type Label}" x:Key="LabelStyle" BasedOn="{StaticResource BaseLabelStyle}">
+        <Setter Property="TextColor" Value="{StaticResource MainGreen}" />
+    </Style>
+
+    <Style TargetType="{x:Type Label}" x:Key="MenuLabelStyle" BasedOn="{StaticResource BaseLabelStyle}">
+        <Setter Property="TextColor" Value="{StaticResource VeryDarkGreen}" />
+    </Style>
+
+    <Style TargetType="{x:Type Button}" x:Key="ButtonStyle" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="TextColor" Value="{StaticResource MainGreen}" />
+    </Style>
+
+    <Style TargetType="NavigationPage">
+        <Setter Property="BarBackgroundColor" Value="{StaticResource DarkGreen}" />
+        <Setter Property="BarTextColor" Value="{StaticResource MainGreen}" />
+    </Style>
+    
+</ResourceDictionary>

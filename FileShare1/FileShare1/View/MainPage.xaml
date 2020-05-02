@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<MasterDetailPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:FileShare1"
+             xmlns:iconize="clr-namespace:Plugin.Iconize;assembly=Plugin.Iconize"
+             Title="FileShare"
+             x:Class="FileShare1.MainPage">
+
+    <MasterDetailPage.Master>
+        <ContentPage Title="Master" BackgroundColor="{StaticResource BackgroundDark}">
+            <ContentPage.Content>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="200"/>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackLayout Padding="0, 60, 0, 0" Spacing="30">
+                        <Image WidthRequest="65" HeightRequest="65" Aspect="AspectFit" Source="upload.png" HorizontalOptions="Center"/>
+                        <Label FontFamily="{StaticResource RegularFont}" TextColor="{StaticResource MainGreen}" FontSize="Large" Text="FileShare" HorizontalOptions="CenterAndExpand"/>
+                    </StackLayout>
+                    <Frame BackgroundColor="{StaticResource DarkGreen}" HasShadow="True" Grid.Row="1">
+                        <StackLayout Margin="20, 20, 20, 0" Spacing="15" >
+                            <local:MenuItem Text="Share files" Icon="fas-file-export" Command="{Binding SwitchPageCommand}" CommandParameter="Share"/>
+                            <ContentView HeightRequest="1" BackgroundColor="{StaticResource BackgroundDark}" />
+                            <local:MenuItem Text="About" Icon="fas-question" Command="{Binding SwitchPageCommand}" CommandParameter="About"/>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+            </ContentPage.Content>
+        </ContentPage>
+    </MasterDetailPage.Master>
+    <!--
+    <MasterDetailPage.Detail>
+        <ContentPage BackgroundColor="{StaticResource BackgroundDark}">
+            <ContentPage.Content>
+                <Label Text="Welcome to FileShare" Style="{StaticResource LabelStyle}" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" />
+            </ContentPage.Content>
+        </ContentPage>
+    </MasterDetailPage.Detail>
+    -->
+</MasterDetailPage>

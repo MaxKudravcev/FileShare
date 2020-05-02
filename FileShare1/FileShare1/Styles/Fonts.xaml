@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:FileShare1">
+
+    <OnPlatform x:TypeArguments="x:String" x:Key="BoldFont">
+        <On Platform="Android" Value="Manrope-Regular.ttf#Manrope Regular" />
+    </OnPlatform>
+    <OnPlatform x:TypeArguments="x:String" x:Key="RegularFont">
+        <On Platform="Android" Value="Manrope-Light.ttf#Manrope Light" />
+    </OnPlatform>
+
+    <Style TargetType="{x:Type Label}" x:Key="BaseLabelStyle">
+        <Setter Property="FontFamily" Value="{StaticResource BoldFont}" />
+    </Style>
+
+    <Style TargetType="{x:Type Button}" x:Key="BaseButtonStyle" >
+        <Setter Property="FontFamily" Value="{StaticResource BoldFont}" />
+    </Style>
+    
+</ResourceDictionary>
