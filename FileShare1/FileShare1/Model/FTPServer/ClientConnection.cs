@@ -32,13 +32,14 @@ namespace FileShare1.Model.FTPServer
         private TcpListener passiveListener;
         private string currentDirectory;
         private string root = "/storage/emulated/0";
+        private string renameFrom;
 
         public ClientConnection(TcpClient client)
         {
             controlClient = client;
             controlStream = controlClient.GetStream();
-            controlReader = new StreamReader(controlStream, Encoding.ASCII);
-            controlWriter = new StreamWriter(controlStream, Encoding.ASCII);
+            controlReader = new StreamReader(controlStream);
+            controlWriter = new StreamWriter(controlStream);
         }
 
         public void HandleClient(object obj)
@@ -59,6 +60,9 @@ namespace FileShare1.Model.FTPServer
 
                     if (string.IsNullOrWhiteSpace(arguments))
                         arguments = null;
+
+                    if (cmd != "RNTO")
+                        renameFrom = null;
 
                     if (response == null)
                     {
@@ -98,11 +102,33 @@ namespace FileShare1.Model.FTPServer
                             case "RETR":
                                 response = Retrieve(arguments);
                                 break;
+                            case "STOR":
+                                response = Store(arguments);
+                                break;
                             case "SYST":
                                 response = "215 System";
                                 break;
                             case "NOOP":
                                 response = "200 OK";
+                                break;
+                            case "SIZE":
+                                response = FileSize(arguments);
+                                break;
+                            case "DELE":
+                                response = Delete(arguments);
+                                break;
+                            case "RMD":
+                                response = RemoveDir(arguments);
+                                break;
+                            case "MKD":
+                                response = MakeDir(arguments);
+                                break;
+                            case "RNFR":
+                                renameFrom = arguments;
+                                response = "350 Waiting for RNTO command.";
+                                break;
+                            case "RNTO":
+                                response = Rename(renameFrom, arguments);
                                 break;
                             case "QUIT":
                                 response = "221 Service closing control connection.";
@@ -121,6 +147,7 @@ namespace FileShare1.Model.FTPServer
                     }
                     else
                     {
+                        
                         controlWriter.WriteLine(response);
                         controlWriter.Flush();
 
@@ -132,6 +159,7 @@ namespace FileShare1.Model.FTPServer
             catch(Exception ex)
             {
                 //throw;
+                return;
             }
         }
 
@@ -318,8 +346,8 @@ namespace FileShare1.Model.FTPServer
 
             using (NetworkStream dataStream = dataClient.GetStream())
             {
-                dataReader = new StreamReader(dataStream, Encoding.ASCII);
-                dataWriter = new StreamWriter(dataStream, Encoding.ASCII);
+                dataReader = new StreamReader(dataStream);
+                dataWriter = new StreamWriter(dataStream);
 
                 IEnumerable<string> directories = Directory.EnumerateDirectories(path);
                 
@@ -333,13 +361,13 @@ namespace FileShare1.Model.FTPServer
                     string line = string.Format("{0} <DIR> {1}", date, d.Name);
 
                     dataWriter.WriteLine(line);
-                    dataWriter.Flush();
+                    
                 }
-
+                /*
                 string line1 = "04-04-03 10:30PM 325 PrettyFly.txt";
                 dataWriter.WriteLine(line1);
                 dataWriter.Flush();
-
+                */
                 IEnumerable<string> files = Directory.EnumerateFiles(path);
 
                 foreach(string file in files)
@@ -351,8 +379,9 @@ namespace FileShare1.Model.FTPServer
                     //string line = string.Format("-rw-r--r--    2 2003     2003     {0,8} {1}", f.Length, f.Name);
                     string line = string.Format("{0} {1} {2}", date, f.Length, f.Name);
                     dataWriter.WriteLine(line);
-                    dataWriter.Flush();
+                    //dataWriter.Flush();
                 }
+                dataWriter.Flush();
             }
 
             dataClient.Close();
@@ -380,7 +409,7 @@ namespace FileShare1.Model.FTPServer
                         passiveListener.BeginAcceptTcpClient(DoRetrieve, path);
                     }
 
-                    return string.Format("150 Opening {0} mode data file transfer.", dataConnectionType);
+                    return string.Format("150 Opening {0} mode data transfer.", dataConnectionType);
                 }
             }
 
@@ -400,17 +429,33 @@ namespace FileShare1.Model.FTPServer
 
             string path = (string)result.AsyncState;
 
-            using (NetworkStream dataStream = dataClient.GetStream())
-            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+            try
             {
-                CopyStream(fs, dataStream);
+                using (NetworkStream dataStream = dataClient.GetStream())
+                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                {
+                    CopyStream(fs, dataStream);
+                }
 
+            }
+            catch
+            {
                 dataClient.Close();
                 dataClient = null;
 
-                controlWriter.WriteLine("226 Closing data connection, file tranfer succesful");
+                controlWriter.WriteLine("426 Closing data connection, file transfer aborted.");
                 controlWriter.Flush();
+                return;
             }
+
+
+
+            dataClient.Close();
+            dataClient = null;
+
+            controlWriter.WriteLine("226 Closing data connection, file tranfer succesful");
+            controlWriter.Flush();
+            
         }
 
         private static void CopyStreamImage(Stream input, Stream output, int bufferSize)
@@ -421,6 +466,7 @@ namespace FileShare1.Model.FTPServer
            
             while ((count = input.Read(buffer, 0, bufferSize)) > 0)
             {
+                
                 output.Write(buffer, 0, count);
                 total += count;
             }
@@ -464,6 +510,205 @@ namespace FileShare1.Model.FTPServer
             return $"257 \"{current}\" is current working directory.";
         }
 
+        private string FileSize(string path)
+        {
+            path = NormalizeFileName(path);
+
+            if (path != null)
+            {
+                if (File.Exists(path))
+                {
+                    long length = 0;
+
+                    using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        length = fs.Length;
+                    }
+
+                    return $"213 {length.ToString()}";
+                }
+            }
+
+            return "550 File not found.";
+        }
+
+        private string Delete(string path)
+        {
+            path = NormalizeFileName(path);
+
+            if (path != null && File.Exists(path))
+            {
+                try
+                {
+                    File.Delete(path);
+                }
+                catch
+                {
+                    return "450 File action not taken (check your rights).";
+                }
+                return "250 File deleted successfully";
+            }
+            return "550 File not found.";
+        }
+
+        private string RemoveDir(string path)
+        {
+            if (path == null)
+                path = string.Empty;
+            else
+            {
+                if (path == "/")
+                {
+                    path = root;
+                }
+                else
+                {
+                    if (path.StartsWith("/"))
+                    {
+                        path = Path.Combine(root, path.Substring(1));
+                    }
+                    else
+                    {
+                        path = Path.Combine(currentDirectory, path);
+                    }
+                }
+            }
+
+            if (Directory.Exists(path))
+            {
+                try
+                {
+                    Directory.Delete(path, true);
+                }
+                catch
+                {
+                    return "450 File action not taken (check your rights).";
+                }
+                return "250 Directory removed successfully";
+            }
+            return "550 Directory not found";
+        }
+
+        private string MakeDir(string path)
+        {
+            if (path == null)
+                return "550 Directory not found";
+            else
+            {
+                if (path == "/")
+                {
+                    path = root;
+                }
+                else
+                {
+                    if (path.StartsWith("/"))
+                    {
+                        path = Path.Combine(root, path.Substring(1));
+                    }
+                    else
+                    {
+                        path = Path.Combine(currentDirectory, path);
+                    }
+                }
+
+                if (Directory.Exists(path))
+                    return "521 Directory exists";
+                else
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    catch
+                    {
+                        return "450 File action not taken (check your rights).";
+                    }
+                    path = path.Replace(root, string.Empty);
+                    return $"257 <{path}> Directory created.";
+                }
+            }
+        }
+
+        private string Store(string path)
+        {
+            path = NormalizeFileName(path);
+
+            if (IsPathValid(path))
+            {
+                if(dataConnectionType == DataConnectionType.Active)
+                {
+                    dataClient = new TcpClient();
+                    dataClient.BeginConnect(dataEndpoint.Address, dataEndpoint.Port, DoStore, path);
+                }
+                else
+                {
+                    passiveListener.BeginAcceptTcpClient(DoStore, path);
+                }
+
+                return string.Format("150 Opening {0} mode data transfer.", dataConnectionType);
+            }
+            else
+                return "450 File action not taken (invalid path).";
+        }
+
+        private void DoStore(IAsyncResult result)
+        {
+            if (dataConnectionType == DataConnectionType.Active)
+            {
+                dataClient.EndConnect(result);
+            }
+            else
+            {
+                dataClient = passiveListener.EndAcceptTcpClient(result);
+            }
+
+            string path = (string)result.AsyncState;
+
+            try
+            {
+                using (NetworkStream dataStream = dataClient.GetStream())
+                using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+                {
+                    CopyStream(dataStream, fs);
+                }
+
+            }
+            catch
+            {
+                dataClient.Close();
+                dataClient = null;
+
+                controlWriter.WriteLine("426 Closing data connection, file transfer aborted.");
+                controlWriter.Flush();
+                return;
+            }
+
+            dataClient.Close();
+            dataClient = null;
+
+            controlWriter.WriteLine("226 Closing data connection, file tranfer succesful");
+            controlWriter.Flush();
+        }
+
+        private string Rename(string renameFrom, string renameTo)
+        {
+            renameTo = NormalizeFileName(renameTo);
+            renameFrom = NormalizeFileName(renameFrom);
+
+            if ( renameTo != null && renameFrom != null )
+            {
+                if (File.Exists(renameFrom))
+                    File.Move(renameFrom, renameTo);
+                else if (Directory.Exists(renameFrom))
+                    Directory.Move(renameFrom, renameTo);
+                else
+                    return "450 File action not taken (invalid path).";
+
+                return "250 File renamed successfully.";
+            }
+            else
+                return "450 File action not taken (invalid path).";
+        }
         #endregion
     }
 }
