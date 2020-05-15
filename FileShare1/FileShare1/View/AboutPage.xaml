@@ -4,14 +4,42 @@
              x:Class="FileShare1.View.AboutPage"
              BackgroundColor="{StaticResource BackgroundDark}"
              >
-    
+
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Some info..."
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" 
-                FontFamily="{StaticResource RegularFont}"
-                TextColor="{StaticResource MainGreen}"/>
-        </StackLayout>
+        <ScrollView>
+            <StackLayout>
+                <Label
+                    Text="FileShare makes the process of transfering files between your smartphone and PC simplier then ever. 
+To use FileShare you need to:&#x0a; 
+    1)Connect your smartphone and PC to one Wi-Fi network;&#x0a;
+    2)Toggle the switch on 'Share files' page;&#x0a;
+    3)Copy and paste the URL into Windows File Explorer/Web-browser/FTP-client on your PC:"
+                    Margin="4,5,2,0"
+                    FontFamily="{StaticResource RegularFont}"
+                    TextColor="{StaticResource MainGreen}"
+                    FontSize="10"/>
+                <Image Margin="5" Aspect="AspectFit" Source="Example.bmp" HorizontalOptions="Center"/>
+                <ContentView Margin="10,5" HeightRequest="1" BackgroundColor="{StaticResource DarkGreen}" />
+                <Label
+                    Text="How this app works:&#x0a;
+    This app is based on the FTP which stands for File Transfer Protocol - a protocol used to exchange files over a network.&#x0a;
+    When you toggle the switch, you start an FTP-server on your smartphone. Next, when you copy the URL into Explorer, browser etc. 
+your PC serves as a FTP-client, which uses FTP-commands to interact with your smartphone's file system. Then your smartphone
+can send requested data to your PC and vice versa.&#x0a;
+    To learn more about FTP check out the RFC-959 (https://tools.ietf.org/html/rfc959)."
+                    Margin="4,0,2,0"
+                    FontFamily="{StaticResource RegularFont}"
+                    TextColor="{StaticResource MainGreen}"
+                    FontSize="10"/>
+                <ContentView Margin="25,5, 25, 2" HeightRequest="1" BackgroundColor="{StaticResource DarkGreen}" />
+                <Label 
+                    Text="Max Kudravcev, 2020.&#x0a; https://github.com/MaxKudravcev"
+                    HorizontalTextAlignment="Center"
+                    FontFamily="{StaticResource RegularFont}"
+                    TextColor="{StaticResource DarkGreen}"
+                    FontSize="8"
+                    Margin="0, 0, 0, 5"/>
+            </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

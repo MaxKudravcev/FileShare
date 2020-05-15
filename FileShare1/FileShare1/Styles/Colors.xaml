@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <Color x:Key="BackgroundDark">#243125</Color>
-    <Color x:Key="MainGreen">#abfcc4</Color>
-    <Color x:Key="DarkGreen">#0a8b03</Color>
-    <Color x:Key="VeryDarkGreen">#10470d</Color>
+    <Color x:Key="MainGreen">#eaffe8</Color>
+    <Color x:Key="DarkGreen">#4f913f</Color>
+    <Color x:Key="VeryDarkGreen">#224525</Color>
     
 </ResourceDictionary>

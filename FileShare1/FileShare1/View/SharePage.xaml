@@ -4,12 +4,33 @@
              x:Class="FileShare1.View.SharePage"
              BackgroundColor="{StaticResource BackgroundDark}">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <Label Grid.Row="0" Text="Make shure your devices are connected to one Wi-Fi network"
                 VerticalOptions="CenterAndExpand" 
                 HorizontalOptions="CenterAndExpand" 
+                HorizontalTextAlignment="Center"
                 FontFamily="{StaticResource RegularFont}"
                 TextColor="{StaticResource MainGreen}"/>
-        </StackLayout>
+
+            <Switch Grid.Row="1" HorizontalOptions="Center" 
+                VerticalOptions="Center" 
+                Scale="2" 
+                OnColor="{StaticResource DarkGreen}"
+                IsToggled="{Binding IsServerActive}"/>
+
+            <Label Grid.Row="2" Text="{Binding IPCaption}"
+                VerticalOptions="Start" 
+                HorizontalOptions="CenterAndExpand" 
+                FontFamily="{StaticResource RegularFont}"
+                TextColor="{StaticResource MainGreen}"
+                HorizontalTextAlignment="Center"/>
+
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

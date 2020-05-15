@@ -22,8 +22,9 @@ namespace FileShare1.Droid
             
             Plugin.Iconize.Iconize.Init(Resource.Id.toolbar, Resource.Id.sliding_tabs);
             LoadApplication(new App());
+            Window.SetStatusBarColor(Android.Graphics.Color.Rgb(55, 99, 44));
 
-            
+
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Android.Content.PM.Permission[] grantResults)
